@@ -80,7 +80,7 @@ pipeline {
     stage('Verify the Manifest Deployment') {
       steps {
 	sh """
-	  oc process -f ${env.DEV_TEMPLATE} -p=APPLICATION_NAME=basic-spring-boot -p=NAMESPACE=basic-spring-boot-dev -p=SA_NAMESPACE=basic-spring-boot-build -p=READINESS_PATH="/health" -p=READINESS_RESPONSE="status.:.UP" | oc apply -f -
+	  oc process -f ${env.DEV_TEMPLATE} -p=APPLICATION_NAME=basic-spring-boot -p=NAMESPACE=basic-spring-boot-dev -p=READINESS_PATH="/health" -p=READINESS_RESPONSE="status.:.UP" | oc apply -f -
 	"""
 	}      
     }
