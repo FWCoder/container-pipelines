@@ -76,6 +76,13 @@ pipeline {
       }
     }
 
+    stage('Verify the deploy manifest') {
+      steps {
+	oc process -f .openshift/templates/deployment.yml -p=APPLICATION_NAME=basic-spring-boot -p=NAMESPACE=basic-spring-boot-dev -p=SA_NAMESPACE=basic-spring-boot-build -p=READINESS_PATH="/health" -p=READINESS_RESPONSE="status.:.UP" | oc apply -f -
+      }
+    }
+
+
     stage('Promote from Build to Dev') {
       steps {
         tagImage(sourceImageName: env.APP_NAME, sourceImagePath: env.BUILD, toImagePath: env.DEV)
