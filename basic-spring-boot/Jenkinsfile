@@ -36,8 +36,8 @@ pipeline {
     // This is required as Pipeline code is originally checkedout to
     // Jenkins Master but this will also pull this same code to this slave
     stage('Git Checkout') {
-      echo "Checking out code from Git"
       steps {
+	print "Checking out code from Git"
         // Turn off Git's SSL cert check, uncomment if needed
         // sh 'git config --global http.sslVerify false'
         git url: "${APPLICATION_SOURCE_REPO}", branch: "${APPLICATION_SOURCE_REF}"
@@ -46,24 +46,24 @@ pipeline {
 
     // Run Maven build, skipping tests
     stage('Build'){
-      echo "Building Code"
       steps {
+	print "Building Code"
         sh "mvn -B clean install -DskipTests=true -f ${POM_FILE}"
       }
     }
 
     // Run Maven unit tests
     stage('Unit Test'){
-      echo "Running Unit Test"
       steps {
+	print "Running Unit Test"
         sh "mvn -B test -f ${POM_FILE}"
       }
     }
 
     // Build Container Image using the artifacts produced in previous stages
     stage('Build Container Image'){
-      echo "Building Container Image"
       steps {
+	print "Building Container Image"
         // Copy the resulting artifacts into common directory
         sh """
           ls target/*
@@ -83,6 +83,7 @@ pipeline {
 
     stage('Verify Manifest Deployment') {
       steps {
+	print "Verifying Manifest Deployment"
 	sh """
 	  oc process -f ${env.DEV_TEMPLATE} -p=APPLICATION_NAME=basic-spring-boot -p=NAMESPACE=basic-spring-boot-dev -p=READINESS_PATH="/health" -p=READINESS_RESPONSE="status.:.UP" | oc apply -f -
 	"""
@@ -91,36 +92,36 @@ pipeline {
 
 
     stage('Promote from Build to Dev') {
-      echo "Promoting from Build to Dev"
       steps {
+	print "Promoting from Build to Dev"
         tagImage(sourceImageName: env.APP_NAME, sourceImagePath: env.BUILD, toImagePath: env.DEV)
       }
     }
 
     stage ('Verify Deployment to Dev') {
-      echo "Verifying Deployment to Dev"
       steps {
+	print "Verifying Deployment to Dev"
         verifyDeployment(projectName: env.DEV, targetApp: env.APP_NAME)
       }
     }
 
     stage('Promote from Dev to Stage') {
-      echo "Promoting from Dev to Stage"
       steps {
+	print "Promoting from Dev to Stage"
         tagImage(sourceImageName: env.APP_NAME, sourceImagePath: env.DEV, toImagePath: env.STAGE)
       }
     }
 
     stage ('Verify Deployment to Stage') {
-      echo "Verifying Deployment to Stage"
       steps {
+	print "Verifying Deployment to Stage"
         verifyDeployment(projectName: env.STAGE, targetApp: env.APP_NAME)
       }
     }
 
     stage('Promotion gate') {
-      echo "Promoting Gate" 
       steps {
+	print "Promoting Gate"
         script {
           input message: 'Promote application to Production?'
         }
@@ -128,15 +129,15 @@ pipeline {
     }
 
     stage('Promote from Stage to Prod') {
-      echo "Promoting from Stage to Prod"
       steps {
+	print "Promoting from Stage to Prod"
         tagImage(sourceImageName: env.APP_NAME, sourceImagePath: env.STAGE, toImagePath: env.PROD)
       }
     }
 
     stage ('Verify Deployment to Prod') {
-      echo "Verifying Deployment to Prod"
       steps {
+	print "Verifying Deployment to Prod"
         verifyDeployment(projectName: env.PROD, targetApp: env.APP_NAME)
       }
     }
