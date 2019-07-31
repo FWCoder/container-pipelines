@@ -79,10 +79,9 @@ pipeline {
 
     stage('Verify Manifest Deployment') {
       steps {
-	sh """
+	// sh """
 	  // oc process -f ${env.DEV_TEMPLATE} -p=APPLICATION_NAME=basic-spring-boot -p=NAMESPACE=basic-spring-boot-dev -p=READINESS_PATH="/health" -p=READINESS_RESPONSE="status.:.UP" | oc apply -f -
-	echo "Testing"
-	"""
+	// """
 	}      
     }
 
